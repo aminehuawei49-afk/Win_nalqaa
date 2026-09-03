@@ -27,12 +27,28 @@ button,input,select,textarea{font:inherit}button{cursor:pointer}
 .toast{position:fixed;top:18px;left:50%;transform:translateX(-50%) translateY(-20px);background:#f4f7f6;color:#111;padding:11px 17px;border-radius:999px;opacity:0;pointer-events:none;transition:.25s;z-index:100;font-weight:700}.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 @media(max-width:650px){.hero h1{font-size:31px}.categories{grid-template-columns:repeat(4,1fr);gap:7px}.cat{padding:12px 4px}.cat .ico{font-size:24px}.cat span{font-size:11px}.cards{grid-template-columns:1fr}.cover{height:105px}.searchbox{margin:0 12px}.section,.hero,.top{padding-left:12px;padding-right:12px}.bottom{bottom:8px}.actions{grid-template-columns:1fr}}
 </style>
+
+<script>
+(async function(){
+  try{
+    if('serviceWorker' in navigator){
+      const regs=await navigator.serviceWorker.getRegistrations();
+      for(const r of regs) await r.unregister();
+    }
+    if('caches' in window){
+      const ks=await caches.keys();
+      for(const k of ks) await caches.delete(k);
+    }
+  }catch(e){}
+})();
+</script>
+
 </head>
 <body>
 <div class="toast" id="toast"></div>
 <div class="app">
 <header class="top">
-  <div class="brand"><div class="logo">📍</div><div><small>دليل الخدمات والأماكن في تونس</small><strong>وين نلقى؟</strong></div></div>
+  <div class="brand"><div class="logo">📍</div><div><small>دليل الخدمات والأماكن في تونس · النسخة الجديدة</small><strong>وين نلقى؟</strong></div></div>
 </header>
 
 <section class="hero">
