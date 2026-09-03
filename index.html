@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#0f766e">
+  <meta name="description" content="وين نلقى؟ — دليل محلي للشمال الغربي التونسي">
+  <link rel="manifest" href="manifest.json">
+  <title>وين نلقى؟</title>
+  <style>
+    :root{--primary:#0f766e;--bg:#f6f8f7;--card:#fff;--text:#17201d;--muted:#66736e;--line:#e2e8e5;--ok:#15803d}
+    *{box-sizing:border-box} body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Tahoma,Arial,sans-serif;background:var(--bg);color:var(--text)}
+    header{background:linear-gradient(145deg,#0f766e,#115e59);color:#fff;padding:22px 16px 26px;border-radius:0 0 26px 26px}
+    .wrap{max-width:900px;margin:auto;padding:0 14px}.brand{font-size:28px;font-weight:800}.sub{opacity:.88;margin-top:4px}
+    .search{margin-top:18px;background:#fff;border-radius:16px;padding:4px;display:flex;box-shadow:0 8px 24px #0002}
+    .search input{border:0;outline:0;flex:1;padding:13px;font-size:16px;direction:rtl}.search button{border:0;background:var(--primary);color:#fff;border-radius:12px;padding:0 18px;font-size:16px}
+    main{padding:18px 0 80px}.row{display:flex;gap:8px;overflow:auto;padding-bottom:6px}.chip{border:1px solid var(--line);background:#fff;padding:9px 14px;border-radius:999px;white-space:nowrap;cursor:pointer}.chip.active{background:#dff4f0;border-color:#9bd9d0;color:#075e56;font-weight:700}
+    h2{font-size:20px;margin:18px 2px 10px}.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.cat{background:#fff;border:1px solid var(--line);border-radius:16px;padding:15px;text-align:center;cursor:pointer}.cat .ico{font-size:26px}.cat b{display:block;margin-top:6px}
+    .toolbar{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:18px}.select{padding:10px;border:1px solid var(--line);border-radius:12px;background:#fff}
+    .cards{display:grid;gap:10px}.card{background:#fff;border:1px solid var(--line);border-radius:18px;padding:15px}.top{display:flex;justify-content:space-between;gap:12px}.name{font-size:18px;font-weight:800}.meta{color:var(--muted);font-size:14px;margin-top:5px}.badge{font-size:12px;background:#e6f6eb;color:#126b35;padding:5px 8px;border-radius:999px;white-space:nowrap}.desc{margin:10px 0;color:#34423d}.actions{display:flex;gap:7px;flex-wrap:wrap}.actions a,.actions button{border:0;border-radius:11px;padding:9px 12px;text-decoration:none;font-weight:700;font-size:13px;cursor:pointer}.call{background:#e5f6eb;color:#126b35}.map{background:#e6f0ff;color:#245ca8}.wa{background:#e8f8f2;color:#08785b}.loc{background:#fff;border:1px solid var(--line)!important;color:var(--text)}
+    .empty{text-align:center;color:var(--muted);padding:35px}.footer{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--line);display:flex;justify-content:center;gap:30px;padding:10px}.footer button{border:0;background:none;color:var(--muted);font-size:13px}.footer .on{color:var(--primary);font-weight:800}
+    @media(min-width:650px){.grid{grid-template-columns:repeat(4,1fr)}}
+  </style>
+</head>
+<body>
+<header><div class="wrap">
+  <div class="brand">وين نلقى؟ 🇹🇳</div><div class="sub">دليل محلي للشمال الغربي التونسي</div>
+  <div class="search"><input id="q" placeholder="شنوة تحب تلقى؟ طبيب، ميكانيكي، مطعم..." autocomplete="off"><button onclick="render()">بحث</button></div>
+</div></header>
+<main class="wrap">
+  <h2>الولايات</h2>
+  <div class="row" id="govs"></div>
+  <h2>الفئات الرئيسية</h2>
+  <div class="grid" id="cats"></div>
+  <div class="toolbar"><h2 style="margin:0">النتائج</h2><select class="select" id="sort" onchange="render()"><option value="default">الأحدث</option><option value="name">الاسم</option><option value="rating">الأعلى تقييماً</option></select></div>
+  <div class="cards" id="results"></div>
+</main>
+<div class="footer"><button class="on">🏠 الرئيسية</button><button onclick="nearMe()">📍 القريب مني</button><button onclick="alert('في النسخة التالية: إضافة نشاطك التجاري')">➕ أضف نشاطك</button></div>
+<script>
+const govs=["الكل","باجة","جندوبة","الكاف","سليانة"];
+const cats=[
+["🏥","الصحة"],["🚗","السيارات وقطع الغيار"],["🚚","النقل والتوصيل"],["🌾","الأعلاف والمنتجات الفلاحية"],
+["🛒","المواد الغذائية"],["🔧","الحرف والخدمات"],["🏪","المحلات التجارية"],["🍽️","الإقامة والمطاعم"],
+["💼","الخدمات المهنية"],["🏛️","الخدمات والإدارات"],["🚑","خدمات الطوارئ"],["🐑","الفلاحة والحيوانات"]
+];
+const businesses=[
+{id:1,name:"عيادة طب أسنان تجريبية",cat:"الصحة",gov:"باجة",city:"باجة",address:"وسط مدينة باجة",phone:"00000000",lat:36.7256,lng:9.1817,rating:4.6,verified:true,desc:"بيانات تجريبية — استبدلها ببيانات حقيقية."},
+{id:2,name:"Garage Nord",cat:"السيارات وقطع الغيار",gov:"باجة",city:"مجاز الباب",address:"مجاز الباب",phone:"00000000",lat:36.649,lng:9.61,rating:4.4,verified:false,desc:"صيانة سيارات وقطع غيار — بيانات تجريبية."},
+{id:3,name:"مطعم الشمال",cat:"الإقامة والمطاعم",gov:"جندوبة",city:"جندوبة",address:"وسط جندوبة",phone:"00000000",lat:36.501,lng:8.78,rating:4.3,verified:true,desc:"مطعم تجريبي للعرض فقط."},
+{id:4,name:"خدمات فلاحية الشمال",cat:"الأعلاف والمنتجات الفلاحية",gov:"الكاف",city:"الكاف",address:"الكاف",phone:"00000000",lat:36.174,lng:8.704,rating:4.5,verified:false,desc:"أعلاف ومنتجات فلاحية — بيانات تجريبية."},
+{id:5,name:"حرفي سليانة",cat:"الحرف والخدمات",gov:"سليانة",city:"سليانة",address:"سليانة",phone:"00000000",lat:36.083,lng:9.371,rating:4.2,verified:true,desc:"خدمات حرفية — بيانات تجريبية."}
+];
+let gov="الكل", cat="";
+function init(){
+ document.getElementById("govs").innerHTML=govs.map(x=>`<button class="chip ${x==="الكل"?"active":""}" onclick="setGov('${x}',this)">${x}</button>`).join("");
+ document.getElementById("cats").innerHTML=cats.map(x=>`<div class="cat" onclick="setCat('${x[1]}')"><div class="ico">${x[0]}</div><b>${x[1]}</b></div>`).join("");
+ render();
+}
+function setGov(x,el){gov=x;document.querySelectorAll(".chip").forEach(b=>b.classList.remove("active"));el.classList.add("active");render()}
+function setCat(x){cat=(cat===x?"":x);render();window.scrollTo({top:350,behavior:"smooth"})}
+function render(){
+ const q=document.getElementById("q").value.trim().toLowerCase();
+ let arr=businesses.filter(b=>(gov==="الكل"||b.gov===gov)&&(!cat||b.cat===cat)&&(!q||[b.name,b.cat,b.gov,b.city,b.address,b.desc].join(" ").toLowerCase().includes(q)));
+ const s=document.getElementById("sort").value;if(s==="name")arr.sort((a,b)=>a.name.localeCompare(b.name,"ar"));if(s==="rating")arr.sort((a,b)=>b.rating-a.rating);
+ document.getElementById("results").innerHTML=arr.length?arr.map(b=>`<article class="card"><div class="top"><div><div class="name">${b.name}</div><div class="meta">${b.cat} • ${b.gov} • ${b.city}</div></div>${b.verified?'<span class="badge">✓ موثّق</span>':''}</div><div class="desc">${b.desc}</div><div class="meta">⭐ ${b.rating} • 📍 ${b.address}</div><div class="actions"><a class="call" href="tel:${b.phone}">📞 اتصال</a><a class="wa" href="https://wa.me/216${b.phone}" target="_blank">💬 WhatsApp</a><a class="map" href="https://www.google.com/maps/dir/?api=1&destination=${b.lat},${b.lng}" target="_blank">🗺️ الاتجاهات</a></div></article>`).join(""):`<div class="empty">لم نجد نتائج. جرّب كلمة أخرى أو ولاية أخرى.</div>`;
+}
+function nearMe(){
+ if(!navigator.geolocation){alert("المتصفح لا يدعم تحديد الموقع.");return}
+ navigator.geolocation.getCurrentPosition(p=>alert(`تم تحديد موقعك تقريبًا: ${p.coords.latitude.toFixed(4)}, ${p.coords.longitude.toFixed(4)}. سنربط ترتيب المسافة في النسخة التالية.`),()=>alert("لم نتمكن من الوصول إلى موقعك. اسمح بالموقع من إعدادات المتصفح."));
+}
+init();
+</script>
+</body>
+</html>
