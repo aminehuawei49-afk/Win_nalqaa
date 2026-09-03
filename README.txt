@@ -1,20 +1,14 @@
-# وين نلقى؟ — V1 مجانية
+WIN NALQAA — version complete frontend
 
-هذه نسخة Prototype/PWA مستقلة، بدون Glide وبدون Credits.
+Fonctions:
+- recherche et filtres
+- tri par nom, note et distance
+- géolocalisation navigateur et distances
+- appel/WhatsApp quand un vrai numéro est renseigné
+- directions Google Maps quand coordonnées disponibles
+- favoris sauvegardés localement
+- partage
+- formulaire d'ajout d'activité sauvegardé localement
+- PWA/service worker
 
-## تشغيل سريع
-افتح `index.html` في المتصفح لمعاينة التطبيق.
-
-## تثبيت على Android
-للتثبيت كـPWA، ارفع الملفات إلى استضافة HTTPS (مثل GitHub Pages)، ثم افتح الرابط في Chrome واختر "Add to Home screen / تثبيت التطبيق" إذا ظهر الخيار.
-
-## مهم
-البيانات الموجودة داخل النسخة الحالية تجريبية وليست بيانات أعمال حقيقية. استبدلها ببيانات موثوقة قبل الإطلاق.
-
-## المرحلة التالية
-- ربط قاعدة بيانات حقيقية
-- حساب المسافة وترتيب الأقرب
-- نموذج "أضف نشاطك"
-- لوحة إدارة للمراجعة والتحقق
-- ساعات العمل
-- التقييمات
+Important: les 5 activités fournies sont des données de démonstration. Il faut remplacer les coordonnées, noms et téléphones par de vraies données avant publication.
