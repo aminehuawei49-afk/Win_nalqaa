@@ -1,1 +1,10 @@
-{"name":"وين نلقى؟","short_name":"وين نلقى؟","start_url":"./","display":"standalone","background_color":"#f5f8f7","theme_color":"#0f766e","lang":"ar","dir":"rtl","description":"دليل محلي تونسي"}
+{
+  "name": "وين نلقى؟",
+  "short_name": "وين نلقى؟",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#0d1010",
+  "theme_color": "#36b6d3",
+  "dir": "rtl",
+  "lang": "ar"
+}
