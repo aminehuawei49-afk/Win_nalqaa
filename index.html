@@ -166,17 +166,77 @@ const m={
 "سيدي بوزيد":["Sidi Bouzid","سيدي بوزيد"],"تطاوين":["Tataouine","تطاوين"]
 }; return m[g]||[g];
 }
-function overpassTags(cat){
+const GOV_CENTERS={
+"تونس":[36.8065,10.1815],"أريانة":[36.8625,10.1956],"بن عروس":[36.7545,10.2189],"منوبة":[36.8081,10.0972],
+"نابل":[36.4561,10.7376],"زغوان":[36.4028,10.1429],"بنزرت":[37.2744,9.8739],"باجة":[36.7256,9.1817],
+"جندوبة":[36.5011,8.7803],"الكاف":[36.1826,8.7148],"سليانة":[36.0844,9.3708],"القيروان":[35.6781,10.0963],
+"القصرين":[35.1676,8.8365],"سيدي بوزيد":[35.0382,9.4849],"سوسة":[35.8256,10.6084],"المنستير":[35.7643,10.8113],
+"المهدية":[35.5047,11.0622],"صفاقس":[34.7406,10.7603],"قفصة":[34.4250,8.7842],"توزر":[33.9197,8.1335],
+"قبلي":[33.7044,8.9690],"قابس":[33.8815,10.0982],"مدنين":[33.3549,10.5055],"تطاوين":[32.9297,10.4518]
+};
+function buildAreaExpr(g){
+return osmAreaNames(g).map(n=>`area["name"="${n.replace(/"/g,'\\"')}"]["admin_level"="4"]["boundary"="administrative"]`).join(";");
+}
+function categoryStatements(cat){
 const m={
-"مطعم":`nwr[amenity~"^(restaurant|fast_food|food_court)$"]`,
-"مقهى":`nwr[amenity~"^(cafe|coffee_shop|ice_cream)$"]`,
-"صحة":`nwr[amenity~"^(pharmacy|doctors|dentist|clinic|hospital|veterinary)$"]`,
-"مخبزة":`nwr[shop~"^(bakery|pastry|confectionery)$"]`,
-"متجر":`nwr[shop]`,
-"خدمات":`nwr[office~"^(company|lawyer|accountant|estate_agent|insurance|government)$"]`,
-"سيارات":`nwr[shop~"^(car|car_repair|tyres)$"]`,
-"الكل":`(nwr[amenity~"^(restaurant|fast_food|cafe|coffee_shop|ice_cream|pharmacy|doctors|dentist|clinic|hospital|veterinary|bank|atm|fuel|post_office)$"];nwr[shop~"^(supermarket|convenience|bakery|pastry|clothes|shoes|electronics|mobile_phone|car|car_repair|tyres|hairdresser|beauty)$"];nwr[tourism~"^(hotel|guest_house|hostel|museum|attraction|information)$"];nwr[leisure~"^(fitness_centre|sports_centre|cinema|theatre)$"])`
+"مطعم":['nwr[amenity~"^(restaurant|fast_food|food_court)$"]'],
+"مقهى":['nwr[amenity~"^(cafe|coffee_shop|ice_cream)$"]'],
+"صحة":['nwr[amenity~"^(pharmacy|doctors|dentist|clinic|hospital|veterinary)$"]'],
+"مخبزة":['nwr[shop~"^(bakery|pastry|confectionery)$"]'],
+"متجر":['nwr[shop]'],
+"خدمات":['nwr[office~"^(company|lawyer|accountant|estate_agent|insurance|government)$"]','nwr[amenity~"^(bank|post_office)$"]'],
+"سيارات":['nwr[shop~"^(car|car_repair|tyres)$"]','nwr[amenity="fuel"]'],
+"الكل":[
+'nwr[amenity~"^(restaurant|fast_food|cafe|coffee_shop|ice_cream|pharmacy|doctors|dentist|clinic|hospital|veterinary|bank|atm|fuel|post_office)$"]',
+'nwr[shop~"^(supermarket|convenience|bakery|pastry|clothes|shoes|electronics|mobile_phone|car|car_repair|tyres|hairdresser|beauty)$"]',
+'nwr[tourism~"^(hotel|guest_house|hostel|museum|attraction|information)$"]',
+'nwr[leisure~"^(fitness_centre|sports_centre|cinema|theatre)$"]'
+]
 }; return m[cat]||m["الكل"];
+}
+function buildAreaQuery(gov,cat){
+const stmts=categoryStatements(cat).map(s=>`${s}(${gov!=="الكل"?"area.g":"area.tn"});`).join("");
+let q=`[out:json][timeout:40];area["ISO3166-1"="TN"][admin_level=2]->.tn;`;
+if(gov!=="الكل") q+=`(${buildAreaExpr(gov)})->.g;`;
+q+=`(${stmts});out center tags;`;
+return q;
+}
+function buildAroundQuery(gov,cat,radius){
+const c=GOV_CENTERS[gov];
+if(!c) return null;
+const stmts=categoryStatements(cat).map(s=>`${s}(around:${radius},${c[0]},${c[1]});`).join("");
+return `[out:json][timeout:40];(${stmts});out center tags;`;
+}
+async function overpassFetch(query){
+const endpoints=["https://overpass-api.de/api/interpreter","https://overpass.kumi.systems/api/interpreter"];
+for(const ep of endpoints){
+try{
+const r=await fetch(ep,{method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded;charset=UTF-8"},body:"data="+encodeURIComponent(query)});
+if(r.ok) return await r.json();
+}catch(e){}
+}
+return null;
+}
+function elementsToPlaces(elements,gov){
+return (elements||[])
+.filter(e=>e.tags && (e.tags.name || e.tags["name:ar"]))
+.map(e=>{
+const t=e.tags||{};
+const lat=e.lat??e.center?.lat, lon=e.lon??e.center?.lon;
+const c=classifyOsm(t);
+const city=t["addr:city"]||t["is_in:city"]||"";
+const phone=t.phone||t["contact:phone"]||"";
+const maps=(lat!=null && lon!=null)
+? `https://www.google.com/maps/search/?api=1&query=${lat},${lon}`
+: "https://www.google.com/maps/search/?api=1&query="+encodeURIComponent((t.name||t["name:ar"]||"")+" Tunisie");
+return {
+name:t.name||t["name:ar"]||"Établissement local", cat:c,
+gov:gov!=="الكل"?gov:mapGov(t["addr:state"]||t["is_in:state"]||""),
+city, address:[t["addr:street"],t["addr:housenumber"],t["addr:postcode"]].filter(Boolean).join(" "),
+phone:String(phone).replace(/\D/g,""), rating:"", reviews:"", maps,
+desc:[city,t["addr:street"],t.website].filter(Boolean).join(" · "), icon:iconFor(c)
+};
+});
 }
 function classifyOsm(t){
 const a=normalize(t.amenity||""), s=normalize(t.shop||""), name=normalize(t.name||t["name:ar"]||"");
@@ -191,53 +251,22 @@ return "خدمات";
 async function loadLive(){
 const gov=document.getElementById("gov").value;
 const cat=activeCat;
-const names=gov==="الكل"?["Tunisia","تونس"]:osmAreaNames(gov);
-const areaExpr=names.map(n=>`area["name"="${n.replace(/"/g,'\\"')}"]`).join(";");
-const filter=overpassTags(cat);
-const query=`[out:json][timeout:35];area["ISO3166-1"="TN"][admin_level=2]->.tn;${gov!=="الكل"?`(${areaExpr})->.g;`:``}(${filter}(${gov!=="الكل"?"area.g":"area.tn"}););out center tags;`;
 document.getElementById("status").textContent="⏳ جاري جلب بيانات حقيقية من OpenStreetMap…";
 try{
-const endpoints=[
-"https://overpass-api.de/api/interpreter",
-"https://overpass.kumi.systems/api/interpreter"
-];
-let data=null;
-for(const ep of endpoints){
-try{
-const r=await fetch(ep,{
-method:"POST",
-headers:{"Content-Type":"application/x-www-form-urlencoded;charset=UTF-8"},
-body:"data="+encodeURIComponent(query)
-});
-if(r.ok){ data=await r.json(); break; }
-}catch(e){}
+let data=await overpassFetch(buildAreaQuery(gov,cat));
+let live=elementsToPlaces(data?.elements,gov);
+if(live.length===0 && gov!=="الكل" && GOV_CENTERS[gov]){
+const q2=buildAroundQuery(gov,cat,35000);
+if(q2){
+const data2=await overpassFetch(q2);
+live=elementsToPlaces(data2?.elements,gov);
 }
-if(!data) throw new Error("Overpass unavailable");
-const live=(data.elements||[])
-.filter(e=>e.tags && (e.tags.name || e.tags["name:ar"]))
-.map(e=>{
-const t=e.tags||{};
-const lat=e.lat??e.center?.lat, lon=e.lon??e.center?.lon;
-const c=classifyOsm(t);
-const city=t["addr:city"]||t["is_in:city"]||"";
-const phone=t.phone||t["contact:phone"]||"";
-const maps=(lat!=null && lon!=null)
-? `https://www.google.com/maps/search/?api=1&query=${lat},${lon}`
-: "https://www.google.com/maps/search/?api=1&query="+encodeURIComponent((t.name||t["name:ar"]||"")+" Tunisie");
-return {
-name:t.name||t["name:ar"]||"Établissement local",
-cat:c,
-gov:gov!=="الكل"?gov:mapGov(t["addr:state"]||t["is_in:state"]||""),
-city,
-address:[t["addr:street"],t["addr:housenumber"],t["addr:postcode"]].filter(Boolean).join(" "),
-phone:String(phone).replace(/\D/g,""),
-rating:"",
-reviews:"",
-maps,
-desc:[city,t["addr:street"],t.website].filter(Boolean).join(" · "),
-icon:iconFor(c)
-};
-});
+}
+if(live.length===0 && data===null){
+document.getElementById("status").textContent="ℹ️ Données locales affichées — OpenStreetMap est momentanément indisponible";
+render();
+return;
+}
 const existing=new Set(base.map(x=>normalize(x.name)+"|"+normalize(x.gov)+"|"+normalize(x.address)));
 for(const x of live){
 const k=normalize(x.name)+"|"+normalize(x.gov)+"|"+normalize(x.address);
@@ -255,41 +284,20 @@ const catsToLoad=["مطعم","مقهى","صحة","مخبزة","سيارات","م
 document.getElementById("status").textContent="⏳ تحميل قاعدة تونس الكبيرة… (قد يستغرق دقيقة)";
 const existing=new Set(base.map(x=>normalize(x.name)+"|"+normalize(x.gov)+"|"+normalize(x.address)));
 for(const gov of govs.filter(g=>g!=="الكل")){
-const names=osmAreaNames(gov);
-const areaExpr=names.map(n=>`area["name"="${n.replace(/"/g,'\\"')}"]`).join(";");
 for(const cat of catsToLoad){
 try{
-const q=`[out:json][timeout:30];area["ISO3166-1"="TN"][admin_level=2]->.tn;(${areaExpr})->.g;${overpassTags(cat)}(area.g);out center tags 200;`;
-const r=await fetch("https://overpass-api.de/api/interpreter",{
-method:"POST",
-headers:{"Content-Type":"application/x-www-form-urlencoded;charset=UTF-8"},
-body:"data="+encodeURIComponent(q)
-});
-if(!r.ok) continue;
-const d=await r.json();
-for(const e of (d.elements||[])){
-const t=e.tags||{};
-const name=t.name||t["name:ar"];
-if(!name) continue;
-const c=classifyOsm(t);
-const lat=e.lat??e.center?.lat, lon=e.lon??e.center?.lon;
-const phone=t.phone||t["contact:phone"]||"";
-const maps=(lat!=null && lon!=null)
-? `https://www.google.com/maps/search/?api=1&query=${lat},${lon}`
-: "https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(name+" Tunisie");
-const x={
-name, cat, gov, city:t["addr:city"]||t["is_in:city"]||"",
-address:[t["addr:street"],t["addr:housenumber"],t["addr:postcode"]].filter(Boolean).join(" "),
-phone:String(phone).replace(/\D/g,""), rating:"", reviews:"", maps,
-desc:[t["addr:city"],t["addr:street"],t.website].filter(Boolean).join(" · "),
-icon:iconFor(c)
-};
+const q=buildAroundQuery(gov,cat,35000);
+if(!q) continue;
+const d=await overpassFetch(q);
+const places=elementsToPlaces(d?.elements,gov);
+for(const x of places){
 const k=normalize(x.name)+"|"+normalize(x.gov)+"|"+normalize(x.address);
 if(!existing.has(k)){ base.push(x); existing.add(k); }
 }
 }catch(e){}
-await new Promise(res=>setTimeout(res,300));
+await new Promise(res=>setTimeout(res,250));
 }
+document.getElementById("status").textContent="⏳ "+gov+"… ("+base.length+" établissement(s) جمعناهم لحد الآن)";
 }
 document.getElementById("status").textContent="🌍 قاعدة كاملة: "+base.length+" établissement(s)";
 render();
