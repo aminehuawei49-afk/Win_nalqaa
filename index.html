@@ -27,368 +27,322 @@ button,input,select,textarea{font:inherit}button{cursor:pointer}
 .toast{position:fixed;top:18px;left:50%;transform:translateX(-50%) translateY(-20px);background:#f4f7f6;color:#111;padding:11px 17px;border-radius:999px;opacity:0;pointer-events:none;transition:.25s;z-index:100;font-weight:700}.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 @media(max-width:650px){.hero h1{font-size:31px}.categories{grid-template-columns:repeat(4,1fr);gap:7px}.cat{padding:12px 4px}.cat .ico{font-size:24px}.cat span{font-size:11px}.cards{grid-template-columns:1fr}.cover{height:105px}.searchbox{margin:0 12px}.section,.hero,.top{padding-left:12px;padding-right:12px}.bottom{bottom:8px}.actions{grid-template-columns:1fr}}
 </style>
-
 <script>
 (async function(){
-  try{
-    if('serviceWorker' in navigator){
-      const regs=await navigator.serviceWorker.getRegistrations();
-      for(const r of regs) await r.unregister();
-    }
-    if('caches' in window){
-      const ks=await caches.keys();
-      for(const k of ks) await caches.delete(k);
-    }
-  }catch(e){}
+try{
+if('serviceWorker' in navigator){
+const regs=await navigator.serviceWorker.getRegistrations();
+for(const r of regs) await r.unregister();
+}
+if('caches' in window){
+const ks=await caches.keys();
+for(const k of ks) await caches.delete(k);
+}
+}catch(e){}
 })();
 </script>
-
 </head>
 <body>
 <div class="toast" id="toast"></div>
 <div class="app">
 <header class="top">
-  <div class="brand"><div class="logo">📍</div><div><small>دليل الخدمات والأماكن في تونس · النسخة الجديدة</small><strong>وين نلقى؟</strong></div></div>
+<div class="brand"><div class="logo">📍</div><div><small>دليل الخدمات والأماكن في تونس · النسخة الجديدة</small><strong>وين نلقى؟</strong></div></div>
 </header>
-
 <section class="hero">
-  <h1>وين نلقى؟</h1>
-  <p>جاوب على سؤال: وين نلقى الحاجة اللي نحتاجها توا؟</p>
+<h1>وين نلقى؟</h1>
+<p>جاوب على سؤال: وين نلقى الحاجة اللي نحتاجها توا؟</p>
 </section>
-
 <section class="searchbox" id="search">
-  <div class="label">🔎 شنوة تحب تلقى؟</div>
-  <div class="field"><input id="q" placeholder="مثال: بيطري مفتوح، علف، ميكانيكي قريب..." onkeydown="if(event.key==='Enter')doSearch()"><button class="primary" onclick="doSearch()">لوج</button></div>
-  <div class="label">الولاية</div>
-  <div class="field"><select id="gov" onchange="render()"><option value="الكل">الشمال، الوسط، الكل</option><option>تونس</option><option>أريانة</option><option>بن عروس</option><option>نابل</option><option>بنزرت</option><option>سوسة</option><option>المنستير</option><option>المهدية</option><option>صفاقس</option><option>قابس</option><option>مدنين</option><option>قفصة</option><option>توزر</option><option>قبلي</option><option>القيروان</option><option>زغوان</option><option>باجة</option><option>جندوبة</option><option>الكاف</option><option>سليانة</option><option>القصرين</option><option>سيدي بوزيد</option><option>تطاوين</option></select></div>
-  <div class="actions"><button class="primary" onclick="doSearch()">🔎 لوج توا</button><button class="secondary" onclick="nearMe()">🎯 حدد موقعي</button></div>
-  <div class="status" id="status">📍 الموقع: غير محدد</div>
+<div class="label">🔎 شنوة تحب تلقى؟</div>
+<div class="field"><input id="q" placeholder="مثال: بيطري مفتوح، علف، ميكانيكي قريب..." onkeydown="if(event.key==='Enter')doSearch()"><button class="primary" onclick="doSearch()">لوج</button></div>
+<div class="label">الولاية</div>
+<div class="field"><select id="gov" onchange="render()"><option value="الكل">الشمال، الوسط، الكل</option><option>تونس</option><option>أريانة</option><option>بن عروس</option><option>منوبة</option><option>نابل</option><option>بنزرت</option><option>سوسة</option><option>المنستير</option><option>المهدية</option><option>صفاقس</option><option>قابس</option><option>مدنين</option><option>قفصة</option><option>توزر</option><option>قبلي</option><option>القيروان</option><option>زغوان</option><option>باجة</option><option>جندوبة</option><option>الكاف</option><option>سليانة</option><option>القصرين</option><option>سيدي بوزيد</option><option>تطاوين</option></select></div>
+<div class="actions"><button class="primary" onclick="doSearch()">🔎 لوج توا</button><button class="secondary" onclick="nearMe()">🎯 حدد موقعي</button></div>
+<button class="secondary" style="width:100%;margin-top:10px" onclick="loadLiveAll()">🌍 حمّل قاعدة تونس الكاملة (24 ولاية)</button>
+<div class="status" id="status">📍 الموقع: غير محدد</div>
 </section>
-
 <section class="section">
- <div class="section-head"><h2>الفئات الرئيسية</h2><button class="link" onclick="selectCat('الكل')">الكل</button></div>
- <div class="categories" id="categories"></div>
+<div class="section-head"><h2>الفئات الرئيسية</h2><button class="link" onclick="selectCat('الكل')">الكل</button></div>
+<div class="categories" id="categories"></div>
 </section>
-
 <section class="section">
- <div class="section-head"><h2>الولايات</h2><span class="results-meta">اختار ولاية</span></div>
- <div class="chips" id="govchips"></div>
+<div class="section-head"><h2>الولايات</h2><span class="results-meta">اختار ولاية</span></div>
+<div class="chips" id="govchips"></div>
 </section>
-
 <section class="section" id="results">
- <div class="section-head"><h2>النتائج</h2><span class="results-meta" id="count"></span></div>
- <div class="cards" id="cards"></div>
+<div class="section-head"><h2>النتائج</h2><span class="results-meta" id="count"></span></div>
+<div class="cards" id="cards"></div>
 </section>
-
 <section class="section" id="add">
- <div class="section-head"><h2>أضف نشاطك</h2></div>
- <div class="searchbox" style="margin:0">
-   <div class="field"><input id="aname" placeholder="اسم النشاط"></div>
-   <div class="field"><select id="acat"><option>مطعم</option><option>مقهى</option><option>صحة</option><option>متجر</option><option>خدمات</option><option>سيارات</option><option>مخبزة</option><option>أخرى</option></select></div>
-   <div class="field"><input id="agov" placeholder="الولاية"></div>
-   <div class="field"><input id="aphone" placeholder="رقم الهاتف"></div>
-   <button class="primary" style="width:100%" onclick="addBusiness()">➕ أضف النشاط</button>
- </div>
+<div class="section-head"><h2>أضف نشاطك</h2></div>
+<div class="searchbox" style="margin:0">
+<div class="field"><input id="aname" placeholder="اسم النشاط"></div>
+<div class="field"><select id="acat"><option>مطعم</option><option>مقهى</option><option>صحة</option><option>متجر</option><option>خدمات</option><option>سيارات</option><option>مخبزة</option><option>أخرى</option></select></div>
+<div class="field"><input id="agov" placeholder="الولاية"></div>
+<div class="field"><input id="aphone" placeholder="رقم الهاتف"></div>
+<button class="primary" style="width:100%" onclick="addBusiness()">➕ أضف النشاط</button>
+</div>
 </section>
 </div>
-
 <nav class="bottom">
- <button class="nav active" onclick="go('home',this)"><b>⌂</b><span>الرئيسية</span></button>
- <button class="nav" onclick="go('cats',this)"><b>▦</b><span>الفئات</span></button>
- <button class="nav" onclick="go('search',this)"><b>⌕</b><span>البحث</span></button>
- <button class="nav" onclick="go('add',this)"><b>＋</b><span>أنشطتي</span></button>
+<button class="nav active" onclick="go('home',this)"><b>⌂</b><span>الرئيسية</span></button>
+<button class="nav" onclick="go('cats',this)"><b>▦</b><span>الفئات</span></button>
+<button class="nav" onclick="go('search',this)"><b>⌕</b><span>البحث</span></button>
+<button class="nav" onclick="go('add',this)"><b>＋</b><span>أنشطتي</span></button>
 </nav>
-
 <div class="modal" id="favModal" onclick="if(event.target.id==='favModal')this.classList.remove('show')">
- <div class="sheet"><button class="close" onclick="document.getElementById('favModal').classList.remove('show')">×</button><h3>❤️ المفضلة</h3><div id="favList"></div></div>
+<div class="sheet"><button class="close" onclick="document.getElementById('favModal').classList.remove('show')">×</button><h3>❤️ المفضلة</h3><div id="favList"></div></div>
 </div>
-
 <script>
 let base=[], custom=safeGet("wn_custom",[]), fav=safeGet("wn_fav",[]), activeCat="الكل", query="", userPos=null, liveMode=true;
-
 const cats=[["الكل","✨"],["مطعم","🍽️"],["مقهى","☕"],["صحة","💊"],["مخبزة","🥖"],["متجر","🛒"],["خدمات","🔧"],["سيارات","🚗"]];
-const govs=["الكل","تونس","أريانة","بن عروس","نابل","بنزرت","سوسة","المنستير","المهدية","صفاقس","قابس","مدنين","قفصة","توزر","قبلي","القيروان","زغوان","باجة","جندوبة","الكاف","سليانة","القصرين","سيدي بوزيد","تطاوين"];
-
+const govs=["الكل","تونس","أريانة","بن عروس","منوبة","نابل","بنزرت","سوسة","المنستير","المهدية","صفاقس","قابس","مدنين","قفصة","توزر","قبلي","القيروان","زغوان","باجة","جندوبة","الكاف","سليانة","القصرين","سيدي بوزيد","تطاوين"];
 function safeGet(k,f){try{let x=JSON.parse(localStorage.getItem(k));return x??f}catch(e){return f}}
 function save(){try{localStorage.setItem("wn_custom",JSON.stringify(custom));localStorage.setItem("wn_fav",JSON.stringify(fav))}catch(e){}}
-
 function normalize(s){
-  return String(s||"").toLowerCase()
-    .normalize("NFD").replace(/[\u0300-\u036f]/g,"")
-    .replace(/[أإآ]/g,"ا").replace(/ى/g,"ي").replace(/ة/g,"ه")
-    .replace(/[\u064B-\u065F\u0670]/g,"")
-    .replace(/\s+/g," ").trim();
+return String(s||"").toLowerCase()
+.normalize("NFD").replace(/[\u0300-\u036f]/g,"")
+.replace(/[أإآ]/g,"ا").replace(/ى/g,"ي").replace(/ة/g,"ه")
+.replace(/[\u064B-\u065F\u0670]/g,"")
+.replace(/\s+/g," ").trim();
 }
 function mapCategory(c){
-  const n=normalize(c);
-  if(/مطعم|restaurant|pizzeria|pizza|food/.test(n)) return "مطعم";
-  if(/مقهى|قهوه|cafe|coffee/.test(n)) return "مقهى";
-  if(/صيدليه|pharm|sante|صحه|طبي|medical/.test(n)) return "صحة";
-  if(/مخبزه|boulanger|patisserie|viennoiserie|خبز|حلويات/.test(n)) return "مخبزة";
-  if(/سيارات|auto|mecanique|garage|lavage|car/.test(n)) return "سيارات";
-  if(/خدمات|service/.test(n)) return "خدمات";
-  if(/متجر|store|shop|commerce|fashion|boutique/.test(n)) return "متجر";
-  return "خدمات";
+const n=normalize(c);
+if(/مطعم|restaurant|pizzeria|pizza|food/.test(n)) return "مطعم";
+if(/مقهى|قهوه|cafe|coffee/.test(n)) return "مقهى";
+if(/صيدليه|pharm|sante|صحه|طبي|medical/.test(n)) return "صحة";
+if(/مخبزه|boulanger|patisserie|viennoiserie|خبز|حلويات/.test(n)) return "مخبزة";
+if(/سيارات|auto|mecanique|garage|lavage|car/.test(n)) return "سيارات";
+if(/خدمات|service/.test(n)) return "خدمات";
+if(/متجر|store|shop|commerce|fashion|boutique/.test(n)) return "متجر";
+return "خدمات";
 }
 function mapGov(g){
-  const n=normalize(g);
-  const m={
-    "تونس":"تونس","ariane":"أريانة","اريانه":"أريانة","بن عروس":"بن عروس","nabeul":"نابل","نابل":"نابل",
-    "bizerte":"بنزرت","بنزرت":"بنزرت","sousse":"سوسة","سوسه":"سوسة","monastir":"المنستير","منستير":"المنستير",
-    "mahdia":"المهدية","مهديه":"المهدية","sfax":"صفاقس","صفاقس":"صفاقس","gabes":"قابس","medenine":"مدنين",
-    "gafsa":"قفصة","tozeur":"توزر","kebili":"قبلي","kairouan":"القيروان","zaghouan":"زغوان",
-    "beja":"باجة","باجه":"باجة","jendouba":"جندوبة","جندوبه":"جندوبة","le kef":"الكاف","kef":"الكاف","الكاف":"الكاف",
-    "siliana":"سليانة","سليانه":"سليانة","kasserine":"القصرين","sidi bouzid":"سيدي بوزيد","tataouine":"تطاوين"
-  };
-  return m[n] || String(g||"غير محدد");
+const n=normalize(g);
+const m={
+"تونس":"تونس","ariane":"أريانة","اريانه":"أريانة","بن عروس":"بن عروس","manouba":"منوبة","منوبه":"منوبة",
+"nabeul":"نابل","نابل":"نابل",
+"bizerte":"بنزرت","بنزرت":"بنزرت","sousse":"سوسة","سوسه":"سوسة","monastir":"المنستير","منستير":"المنستير",
+"mahdia":"المهدية","مهديه":"المهدية","sfax":"صفاقس","صفاقس":"صفاقس","gabes":"قابس","medenine":"مدنين",
+"gafsa":"قفصة","tozeur":"توزر","kebili":"قبلي","kairouan":"القيروان","zaghouan":"زغوان",
+"beja":"باجة","باجه":"باجة","jendouba":"جندوبة","جندوبه":"جندوبة","le kef":"الكاف","kef":"الكاف","الكاف":"الكاف",
+"siliana":"سليانة","سليانه":"سليانة","kasserine":"القصرين","sidi bouzid":"سيدي بوزيد","tataouine":"تطاوين"
+};
+return m[n] || String(g||"غير محدد");
 }
 function iconFor(c){return c==="مطعم"?"🍽️":c==="مقهى"?"☕":c==="صحة"?"💊":c==="مخبزة"?"🥖":c==="سيارات"?"🚗":c==="متجر"?"🛒":"🔧"}
-
 async function loadData(){
-  // قاعدة أولية صغيرة + تحميل مباشر من OpenStreetMap/Overpass حسب البحث.
-  try{
-    const r=await fetch("./data_win_nalqaa.json?ts="+Date.now(),{cache:"no-store"});
-    if(r.ok){
-      const raw=await r.json();
-      base=raw.map(x=>({
-        name:x.nom||x.name||"Sans nom", cat:mapCategory(x.categorie||x.cat),
-        gov:mapGov(x.gouvernorat_ar||x.gov||x.gouvernorat), city:x.ville||"",
-        address:x.adresse||"", phone:String(x.telephone??x.phone??"").replace(/\D/g,""),
-        rating:x.note_google??x.rating??"", reviews:x.nombre_avis??x.reviews??"",
-        maps:x.lien_google_maps||x.maps||"", desc:[x.ville,x.adresse,x.source].filter(Boolean).join(" · "),
-        icon:iconFor(mapCategory(x.categorie||x.cat))
-      }));
-    }
-    document.getElementById("status").textContent="🌍 قاعدة تونس + OpenStreetMap: جاهزة للبحث";
-    render();
-  }catch(e){
-    base=[];
-    document.getElementById("status").textContent="🌍 البحث المباشر من OpenStreetMap متاح";
-    render();
-  }
+try{
+const r=await fetch("./data_win_nalqaa.json?ts="+Date.now(),{cache:"no-store"});
+if(r.ok){
+const raw=await r.json();
+base=raw.map(x=>({
+name:x.nom||x.name||"Sans nom", cat:mapCategory(x.categorie||x.cat),
+gov:mapGov(x.gouvernorat_ar||x.gov||x.gouvernorat), city:x.ville||"",
+address:x.adresse||"", phone:String(x.telephone??x.phone??"").replace(/\D/g,""),
+rating:x.note_google??x.rating??"", reviews:x.nombre_avis??x.reviews??"",
+maps:x.lien_google_maps||x.maps||"", desc:[x.ville,x.adresse,x.source].filter(Boolean).join(" · "),
+icon:iconFor(mapCategory(x.categorie||x.cat))
+}));
 }
-
+document.getElementById("status").textContent="🌍 قاعدة تونس + OpenStreetMap: جاهزة للبحث";
+render();
+}catch(e){
+base=[];
+document.getElementById("status").textContent="🌍 البحث المباشر من OpenStreetMap متاح";
+render();
+}
+}
 function osmAreaNames(g){
-  const m={
-    "تونس":["Tunis","تونس"],"أريانة":["Ariana","أريانة"],"بن عروس":["Ben Arous","بن عروس"],
-    "نابل":["Nabeul","نابل"],"بنزرت":["Bizerte","بنزرت"],"سوسة":["Sousse","سوسة"],
-    "المنستير":["Monastir","المنستير"],"المهدية":["Mahdia","المهدية"],"صفاقس":["Sfax","صفاقس"],
-    "قابس":["Gabes","Gabès","قابس"],"مدنين":["Medenine","Médenine","مدنين"],"قفصة":["Gafsa","قفصة"],
-    "توزر":["Tozeur","توزر"],"قبلي":["Kebili","Kébili","قبلي"],"القيروان":["Kairouan","القيروان"],
-    "زغوان":["Zaghouan","زغوان"],"باجة":["Beja","Béja","باجة"],"جندوبة":["Jendouba","جندوبة"],
-    "الكاف":["Le Kef","Kef","الكاف"],"سليانة":["Siliana","سليانة"],"القصرين":["Kasserine","القصرين"],
-    "سيدي بوزيد":["Sidi Bouzid","سيدي بوزيد"],"تطاوين":["Tataouine","تطاوين"]
-  }; return m[g]||[g];
+const m={
+"تونس":["Tunis","تونس"],"أريانة":["Ariana","أريانة"],"بن عروس":["Ben Arous","بن عروس"],
+"منوبة":["Manouba","منوبة"],
+"نابل":["Nabeul","نابل"],"بنزرت":["Bizerte","بنزرت"],"سوسة":["Sousse","سوسة"],
+"المنستير":["Monastir","المنستير"],"المهدية":["Mahdia","المهدية"],"صفاقس":["Sfax","صفاقس"],
+"قابس":["Gabes","Gabès","قابس"],"مدنين":["Medenine","Médenine","مدنين"],"قفصة":["Gafsa","قفصة"],
+"توزر":["Tozeur","توزر"],"قبلي":["Kebili","Kébili","قبلي"],"القيروان":["Kairouan","القيروان"],
+"زغوان":["Zaghouan","زغوان"],"باجة":["Beja","Béja","باجة"],"جندوبة":["Jendouba","جندوبة"],
+"الكاف":["Le Kef","Kef","الكاف"],"سليانة":["Siliana","سليانة"],"القصرين":["Kasserine","القصرين"],
+"سيدي بوزيد":["Sidi Bouzid","سيدي بوزيد"],"تطاوين":["Tataouine","تطاوين"]
+}; return m[g]||[g];
 }
 function overpassTags(cat){
-  const m={
-    "مطعم":`nwr[amenity~"^(restaurant|fast_food|food_court)$"]`,
-    "مقهى":`nwr[amenity~"^(cafe|coffee_shop|ice_cream)$"]`,
-    "صحة":`nwr[amenity~"^(pharmacy|doctors|dentist|clinic|hospital|veterinary)$"]`,
-    "مخبزة":`nwr[shop~"^(bakery|pastry|confectionery)$"]`,
-    "متجر":`nwr[shop]`,
-    "خدمات":`nwr[office~"^(company|lawyer|accountant|estate_agent|insurance|government)$"]`,
-    "سيارات":`nwr[shop~"^(car|car_repair|tyres)$"]`,
-    "الكل":`(nwr[amenity~"^(restaurant|fast_food|cafe|coffee_shop|ice_cream|pharmacy|doctors|dentist|clinic|hospital|veterinary|bank|atm|fuel|post_office)$"];nwr[shop~"^(supermarket|convenience|bakery|pastry|clothes|shoes|electronics|mobile_phone|car|car_repair|tyres|hairdresser|beauty)$"];nwr[tourism~"^(hotel|guest_house|hostel|museum|attraction|information)$"];nwr[leisure~"^(fitness_centre|sports_centre|cinema|theatre)$"])`
-  }; return m[cat]||m["الكل"];
+const m={
+"مطعم":`nwr[amenity~"^(restaurant|fast_food|food_court)$"]`,
+"مقهى":`nwr[amenity~"^(cafe|coffee_shop|ice_cream)$"]`,
+"صحة":`nwr[amenity~"^(pharmacy|doctors|dentist|clinic|hospital|veterinary)$"]`,
+"مخبزة":`nwr[shop~"^(bakery|pastry|confectionery)$"]`,
+"متجر":`nwr[shop]`,
+"خدمات":`nwr[office~"^(company|lawyer|accountant|estate_agent|insurance|government)$"]`,
+"سيارات":`nwr[shop~"^(car|car_repair|tyres)$"]`,
+"الكل":`(nwr[amenity~"^(restaurant|fast_food|cafe|coffee_shop|ice_cream|pharmacy|doctors|dentist|clinic|hospital|veterinary|bank|atm|fuel|post_office)$"];nwr[shop~"^(supermarket|convenience|bakery|pastry|clothes|shoes|electronics|mobile_phone|car|car_repair|tyres|hairdresser|beauty)$"];nwr[tourism~"^(hotel|guest_house|hostel|museum|attraction|information)$"];nwr[leisure~"^(fitness_centre|sports_centre|cinema|theatre)$"])`
+}; return m[cat]||m["الكل"];
 }
 function classifyOsm(t){
-  const a=normalize(t.amenity||""), s=normalize(t.shop||""), name=normalize(t.name||t["name:ar"]||"");
-  if(/restaurant|fast_food|food_court/.test(a)) return "مطعم";
-  if(/cafe|coffee_shop|ice_cream/.test(a)) return "مقهى";
-  if(/pharmacy|doctors|dentist|clinic|hospital|veterinary/.test(a)) return "صحة";
-  if(/bakery|pastry|confectionery/.test(s)) return "مخبزة";
-  if(/car|car_repair|tyres/.test(s)) return "سيارات";
-  if(s) return "متجر";
-  return "خدمات";
+const a=normalize(t.amenity||""), s=normalize(t.shop||""), name=normalize(t.name||t["name:ar"]||"");
+if(/restaurant|fast_food|food_court/.test(a)) return "مطعم";
+if(/cafe|coffee_shop|ice_cream/.test(a)) return "مقهى";
+if(/pharmacy|doctors|dentist|clinic|hospital|veterinary/.test(a)) return "صحة";
+if(/bakery|pastry|confectionery/.test(s)) return "مخبزة";
+if(/car|car_repair|tyres/.test(s)) return "سيارات";
+if(s) return "متجر";
+return "خدمات";
 }
 async function loadLive(){
-  const gov=document.getElementById("gov").value;
-  const cat=activeCat;
-  const names=gov==="الكل"?["Tunisia","تونس"]:osmAreaNames(gov);
-  const areaExpr=names.map(n=>`area["name"="${n.replace(/"/g,'\\"')}"]`).join(";");
-  const filter=overpassTags(cat);
-
-  // Pour une région précise, on force le gouvernorat choisi.
-  // Pour "Toute la Tunisie", on laisse le résultat dans "الكل" afin
-  // de ne pas inventer le gouvernorat quand OSM ne le fournit pas.
-  const query=`[out:json][timeout:35];area["ISO3166-1"="TN"][admin_level=2]->.tn;${gov!=="الكل"?`(${areaExpr})->.g;`:``}(${filter}(${gov!=="الكل"?"area.g":"area.tn"}););out center tags;`;
-  document.getElementById("status").textContent="⏳ جاري جلب بيانات حقيقية من OpenStreetMap…";
-
-  try{
-    const endpoints=[
-      "https://overpass-api.de/api/interpreter",
-      "https://overpass.kumi.systems/api/interpreter"
-    ];
-    let data=null;
-    for(const ep of endpoints){
-      try{
-        const r=await fetch(ep,{
-          method:"POST",
-          headers:{"Content-Type":"application/x-www-form-urlencoded;charset=UTF-8"},
-          body:"data="+encodeURIComponent(query)
-        });
-        if(r.ok){ data=await r.json(); break; }
-      }catch(e){}
-    }
-    if(!data) throw new Error("Overpass unavailable");
-
-    const live=(data.elements||[])
-      .filter(e=>e.tags && (e.tags.name || e.tags["name:ar"]))
-      .map(e=>{
-        const t=e.tags||{};
-        const lat=e.lat??e.center?.lat, lon=e.lon??e.center?.lon;
-        const c=classifyOsm(t);
-        const city=t["addr:city"]||t["is_in:city"]||"";
-        const phone=t.phone||t["contact:phone"]||"";
-        const maps=(lat!=null && lon!=null)
-          ? `https://www.google.com/maps/search/?api=1&query=${lat},${lon}`
-          : "https://www.google.com/maps/search/?api=1&query="+encodeURIComponent((t.name||t["name:ar"]||"")+" Tunisie");
-
-        return {
-          name:t.name||t["name:ar"]||"Établissement local",
-          cat:c,
-          gov:gov!=="الكل"?gov:mapGov(t["addr:state"]||t["is_in:state"]||""),
-          city,
-          address:[t["addr:street"],t["addr:housenumber"],t["addr:postcode"]].filter(Boolean).join(" "),
-          phone:String(phone).replace(/\D/g,""),
-          rating:"",
-          reviews:"",
-          maps,
-          desc:[city,t["addr:street"],t.website].filter(Boolean).join(" · "),
-          icon:iconFor(c)
-        };
-      });
-
-    // Ne remplace jamais la base locale. On ajoute les résultats OSM.
-    const existing=new Set(base.map(x=>normalize(x.name)+"|"+normalize(x.gov)+"|"+normalize(x.address)));
-    for(const x of live){
-      const k=normalize(x.name)+"|"+normalize(x.gov)+"|"+normalize(x.address);
-      if(!existing.has(k)){ base.push(x); existing.add(k); }
-    }
-
-    document.getElementById("status").textContent="🌍 OpenStreetMap : "+live.length+" résultats ajoutés";
-    render();
-  }catch(e){
-    document.getElementById("status").textContent="ℹ️ Données locales affichées — OpenStreetMap est momentanément indisponible";
-    render();
-  }
+const gov=document.getElementById("gov").value;
+const cat=activeCat;
+const names=gov==="الكل"?["Tunisia","تونس"]:osmAreaNames(gov);
+const areaExpr=names.map(n=>`area["name"="${n.replace(/"/g,'\\"')}"]`).join(";");
+const filter=overpassTags(cat);
+const query=`[out:json][timeout:35];area["ISO3166-1"="TN"][admin_level=2]->.tn;${gov!=="الكل"?`(${areaExpr})->.g;`:``}(${filter}(${gov!=="الكل"?"area.g":"area.tn"}););out center tags;`;
+document.getElementById("status").textContent="⏳ جاري جلب بيانات حقيقية من OpenStreetMap…";
+try{
+const endpoints=[
+"https://overpass-api.de/api/interpreter",
+"https://overpass.kumi.systems/api/interpreter"
+];
+let data=null;
+for(const ep of endpoints){
+try{
+const r=await fetch(ep,{
+method:"POST",
+headers:{"Content-Type":"application/x-www-form-urlencoded;charset=UTF-8"},
+body:"data="+encodeURIComponent(query)
+});
+if(r.ok){ data=await r.json(); break; }
+}catch(e){}
 }
-
+if(!data) throw new Error("Overpass unavailable");
+const live=(data.elements||[])
+.filter(e=>e.tags && (e.tags.name || e.tags["name:ar"]))
+.map(e=>{
+const t=e.tags||{};
+const lat=e.lat??e.center?.lat, lon=e.lon??e.center?.lon;
+const c=classifyOsm(t);
+const city=t["addr:city"]||t["is_in:city"]||"";
+const phone=t.phone||t["contact:phone"]||"";
+const maps=(lat!=null && lon!=null)
+? `https://www.google.com/maps/search/?api=1&query=${lat},${lon}`
+: "https://www.google.com/maps/search/?api=1&query="+encodeURIComponent((t.name||t["name:ar"]||"")+" Tunisie");
+return {
+name:t.name||t["name:ar"]||"Établissement local",
+cat:c,
+gov:gov!=="الكل"?gov:mapGov(t["addr:state"]||t["is_in:state"]||""),
+city,
+address:[t["addr:street"],t["addr:housenumber"],t["addr:postcode"]].filter(Boolean).join(" "),
+phone:String(phone).replace(/\D/g,""),
+rating:"",
+reviews:"",
+maps,
+desc:[city,t["addr:street"],t.website].filter(Boolean).join(" · "),
+icon:iconFor(c)
+};
+});
+const existing=new Set(base.map(x=>normalize(x.name)+"|"+normalize(x.gov)+"|"+normalize(x.address)));
+for(const x of live){
+const k=normalize(x.name)+"|"+normalize(x.gov)+"|"+normalize(x.address);
+if(!existing.has(k)){ base.push(x); existing.add(k); }
+}
+document.getElementById("status").textContent="🌍 OpenStreetMap : "+live.length+" résultats ajoutés";
+render();
+}catch(e){
+document.getElementById("status").textContent="ℹ️ Données locales affichées — OpenStreetMap est momentanément indisponible";
+render();
+}
+}
 async function loadLiveAll(){
-  // Chargement national contrôlé : on récupère plusieurs catégories,
-  // sans créer de fiches vides et sans écraser la base locale.
-  const catsToLoad=["مطعم","مقهى","صحة","مخبزة","سيارات","متجر"];
-  document.getElementById("status").textContent="⏳ تحميل قاعدة تونس الكبيرة…";
-
-  let added=0;
-  const existing=new Set(base.map(x=>normalize(x.name)+"|"+normalize(x.gov)+"|"+normalize(x.address)));
-
-  for(const cat of catsToLoad){
-    try{
-      const q=`[out:json][timeout:30];area["ISO3166-1"="TN"][admin_level=2]->.tn;${overpassTags(cat)}(area.tn);out center tags 500;`;
-      const r=await fetch("https://overpass-api.de/api/interpreter",{
-        method:"POST",
-        headers:{"Content-Type":"application/x-www-form-urlencoded;charset=UTF-8"},
-        body:"data="+encodeURIComponent(q)
-      });
-      if(!r.ok) continue;
-
-      const d=await r.json();
-      for(const e of (d.elements||[])){
-        const t=e.tags||{};
-        const name=t.name||t["name:ar"];
-        if(!name) continue;
-
-        const c=classifyOsm(t);
-        const lat=e.lat??e.center?.lat, lon=e.lon??e.center?.lon;
-        const phone=t.phone||t["contact:phone"]||"";
-        const maps=(lat!=null && lon!=null)
-          ? `https://www.google.com/maps/search/?api=1&query=${lat},${lon}`
-          : "https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(name+" Tunisie");
-
-        const x={
-          name,
-          cat:c,
-          gov:mapGov(t["addr:state"]||t["is_in:state"]||""),
-          city:t["addr:city"]||t["is_in:city"]||"",
-          address:[t["addr:street"],t["addr:housenumber"],t["addr:postcode"]].filter(Boolean).join(" "),
-          phone:String(phone).replace(/\D/g,""),
-          rating:"",
-          reviews:"",
-          maps,
-          desc:[t["addr:city"],t["addr:street"],t.website].filter(Boolean).join(" · "),
-          icon:iconFor(c)
-        };
-
-        // Évite les fiches sans nom et les doublons exacts.
-        const k=normalize(x.name)+"|"+normalize(x.gov)+"|"+normalize(x.address);
-        if(!existing.has(k)){
-          base.push(x);
-          existing.add(k);
-          added++;
-        }
-      }
-    }catch(e){}
-  }
-
-  document.getElementById("status").textContent="🌍 Grande base : "+base.length+" établissements";
-  render();
+const catsToLoad=["مطعم","مقهى","صحة","مخبزة","سيارات","متجر"];
+document.getElementById("status").textContent="⏳ تحميل قاعدة تونس الكبيرة… (قد يستغرق دقيقة)";
+const existing=new Set(base.map(x=>normalize(x.name)+"|"+normalize(x.gov)+"|"+normalize(x.address)));
+for(const gov of govs.filter(g=>g!=="الكل")){
+const names=osmAreaNames(gov);
+const areaExpr=names.map(n=>`area["name"="${n.replace(/"/g,'\\"')}"]`).join(";");
+for(const cat of catsToLoad){
+try{
+const q=`[out:json][timeout:30];area["ISO3166-1"="TN"][admin_level=2]->.tn;(${areaExpr})->.g;${overpassTags(cat)}(area.g);out center tags 200;`;
+const r=await fetch("https://overpass-api.de/api/interpreter",{
+method:"POST",
+headers:{"Content-Type":"application/x-www-form-urlencoded;charset=UTF-8"},
+body:"data="+encodeURIComponent(q)
+});
+if(!r.ok) continue;
+const d=await r.json();
+for(const e of (d.elements||[])){
+const t=e.tags||{};
+const name=t.name||t["name:ar"];
+if(!name) continue;
+const c=classifyOsm(t);
+const lat=e.lat??e.center?.lat, lon=e.lon??e.center?.lon;
+const phone=t.phone||t["contact:phone"]||"";
+const maps=(lat!=null && lon!=null)
+? `https://www.google.com/maps/search/?api=1&query=${lat},${lon}`
+: "https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(name+" Tunisie");
+const x={
+name, cat, gov, city:t["addr:city"]||t["is_in:city"]||"",
+address:[t["addr:street"],t["addr:housenumber"],t["addr:postcode"]].filter(Boolean).join(" "),
+phone:String(phone).replace(/\D/g,""), rating:"", reviews:"", maps,
+desc:[t["addr:city"],t["addr:street"],t.website].filter(Boolean).join(" · "),
+icon:iconFor(c)
+};
+const k=normalize(x.name)+"|"+normalize(x.gov)+"|"+normalize(x.address);
+if(!existing.has(k)){ base.push(x); existing.add(k); }
 }
-
+}catch(e){}
+await new Promise(res=>setTimeout(res,300));
+}
+}
+document.getElementById("status").textContent="🌍 قاعدة كاملة: "+base.length+" établissement(s)";
+render();
+}
 function allData(){return base.concat(custom)}
 function selectCat(c){activeCat=c;renderCats();render();loadLive()}
 function renderCats(){document.getElementById("categories").innerHTML=cats.map(x=>`<button class="cat ${activeCat===x[0]?'active':''}" onclick="selectCat('${x[0]}')"><span class="ico">${x[1]}</span><span>${x[0]}</span></button>`).join("")}
 function renderChips(){document.getElementById("govchips").innerHTML=govs.map(g=>`<button class="chip ${document.getElementById("gov").value===g?'active':''}" onclick="setGov('${g}')">${g}</button>`).join("")}
 function setGov(g){document.getElementById("gov").value=g;render();loadLive()}
 function doSearch(){query=document.getElementById("q").value.trim();render();loadLive();document.getElementById("results").scrollIntoView({behavior:"smooth"})}
-
 function searchMatch(x,q){
-  const n=normalize(q);
-  if(!n)return true;
-  const text=normalize([x.name,x.gov,x.city,x.cat,x.address,x.desc].join(" "));
-  if(text.includes(n))return true;
-
-  const aliases={
-    "قهوه":["مقهى","cafe","coffee"],"قهوة":["مقهى","cafe","coffee"],"cafe":["مقهى","coffee"],
-    "دواء":["صحة","صيدلية","pharmacie"],"pharmacie":["صحة","صيدلية"],
-    "خبز":["مخبزة","boulangerie"],"boulangerie":["مخبزة"],
-    "بيتزا":["مطعم","pizzeria","pizza"],"pizza":["مطعم","pizzeria"],"restaurant":["مطعم"],
-    "مطعم":["restaurant","pizzeria"],"ميكانيكي":["سيارات","garage","auto"],"كراج":["سيارات","garage"],
-    "garage":["سيارات","auto"],"سيارات":["auto","garage"],"متجر":["shop","store"],"shop":["متجر"]
-  };
-  return (aliases[n]||[]).some(a=>text.includes(normalize(a)));
+const n=normalize(q);
+if(!n)return true;
+const text=normalize([x.name,x.gov,x.city,x.cat,x.address,x.desc].join(" "));
+if(text.includes(n))return true;
+const aliases={
+"قهوه":["مقهى","cafe","coffee"],"قهوة":["مقهى","cafe","coffee"],"cafe":["مقهى","coffee"],
+"دواء":["صحة","صيدلية","pharmacie"],"pharmacie":["صحة","صيدلية"],
+"خبز":["مخبزة","boulangerie"],"boulangerie":["مخبزة"],
+"بيتزا":["مطعم","pizzeria","pizza"],"pizza":["مطعم","pizzeria"],"restaurant":["مطعم"],
+"مطعم":["restaurant","pizzeria"],"ميكانيكي":["سيارات","garage","auto"],"كراج":["سيارات","garage"],
+"garage":["سيارات","auto"],"سيارات":["auto","garage"],"متجر":["shop","store"],"shop":["متجر"]
+};
+return (aliases[n]||[]).some(a=>text.includes(normalize(a)));
 }
-
 function render(){
-  let gov=document.getElementById("gov").value;
-  let data=allData().filter(x=>(activeCat==="الكل"||x.cat===activeCat)&&(gov==="الكل"||x.gov===gov)&&searchMatch(x,query));
-  document.getElementById("count").textContent=data.length+" نتيجة";
-  document.getElementById("cards").innerHTML=data.length?data.map(card).join(""):`<div class="empty">😕<br><br>ما لقيناش نتيجة.<br>جرّب كلمة أخرى أو ولاية أخرى.</div>`;
-  renderChips();
+let gov=document.getElementById("gov").value;
+let data=allData().filter(x=>(activeCat==="الكل"||x.cat===activeCat)&&(gov==="الكل"||x.gov===gov)&&searchMatch(x,query));
+document.getElementById("count").textContent=data.length+" نتيجة";
+document.getElementById("cards").innerHTML=data.length?data.map(card).join(""):`<div class="empty">😕<br><br>ما لقيناش نتيجة.<br>جرّب كلمة أخرى أو ولاية أخرى.</div>`;
+renderChips();
 }
 function esc(s){return String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]))}
 function card(x){
-  let key=x.name+"|"+x.gov, on=fav.includes(key), phone=x.phone||"";
-  let map=x.maps||("https://www.google.com/maps/search/?api=1&query="+encodeURIComponent((x.name+" "+x.city+" تونس")));
-  let rating=x.rating!==""?`⭐ ${esc(x.rating)}${x.reviews!==""?" ("+esc(x.reviews)+" avis)":""}`:"";
-  let address=x.address?`📍 ${esc(x.address)}`:`📍 ${esc(x.city||x.gov)}`;
-  return `<article class="card"><div class="cover"><span>${x.icon||"📍"}</span><button class="fav ${on?'on':''}" onclick="toggleFav('${esc(key)}')">${on?"♥":"♡"}</button></div><div class="cardbody"><div class="title">${esc(x.name)}</div><div class="meta">${address} · ${esc(x.cat)}</div><div class="desc">${esc(x.desc||"Établissement local")}${rating?"<br>"+rating:""}</div><div class="badges"><span class="badge">بيانات حقيقية</span><span class="badge">2026</span></div><div class="cardactions"><a class="call" href="${phone?'tel:+'+phone:'#'}">📞 اتصال</a><a class="wa" href="${phone?'https://wa.me/'+phone:'#'}" target="_blank">WhatsApp</a><a class="map" href="${esc(map)}" target="_blank">🗺️ اتجاهات</a></div></div></article>`
+let key=x.name+"|"+x.gov, on=fav.includes(key), phone=x.phone||"";
+let map=x.maps||("https://www.google.com/maps/search/?api=1&query="+encodeURIComponent((x.name+" "+x.city+" تونس")));
+let rating=x.rating!==""?`⭐ ${esc(x.rating)}${x.reviews!==""?" ("+esc(x.reviews)+" avis)":""}`:"";
+let address=x.address?`📍 ${esc(x.address)}`:`📍 ${esc(x.city||x.gov)}`;
+return `<article class="card"><div class="cover"><span>${x.icon||"📍"}</span><button class="fav ${on?'on':''}" onclick="toggleFav('${esc(key)}')">${on?"♥":"♡"}</button></div><div class="cardbody"><div class="title">${esc(x.name)}</div><div class="meta">${address} · ${esc(x.cat)}</div><div class="desc">${esc(x.desc||"Établissement local")}${rating?"<br>"+rating:""}</div><div class="badges"><span class="badge">بيانات حقيقية</span><span class="badge">2026</span></div><div class="cardactions"><a class="call" href="${phone?'tel:+'+phone:'#'}">📞 اتصال</a><a class="wa" href="${phone?'https://wa.me/'+phone:'#'}" target="_blank">WhatsApp</a><a class="map" href="${esc(map)}" target="_blank">🗺️ اتجاهات</a></div></div></article>`
 }
 function toggleFav(k){let i=fav.indexOf(k);if(i>=0)fav.splice(i,1);else fav.push(k);save();render();toast(i>=0?"تحيّد من المفضلة":"تضاف للمفضلة")}
 function nearMe(){
- if(!navigator.geolocation){toast("المتصفح لا يدعم تحديد الموقع");return}
- navigator.geolocation.getCurrentPosition(p=>{userPos={lat:p.coords.latitude,lon:p.coords.longitude};document.getElementById("status").textContent="📍 الموقع: تم تحديد موقعك";toast("تم تحديد موقعك بنجاح")},()=>toast("ما قدرناش نحدد موقعك"))
+if(!navigator.geolocation){toast("المتصفح لا يدعم تحديد الموقع");return}
+navigator.geolocation.getCurrentPosition(p=>{userPos={lat:p.coords.latitude,lon:p.coords.longitude};document.getElementById("status").textContent="📍 الموقع: تم تحديد موقعك";toast("تم تحديد موقعك بنجاح")},()=>toast("ما قدرناش نحدد موقعك"))
 }
 function addBusiness(){
- let n=document.getElementById("aname").value.trim(),c=document.getElementById("acat").value,g=document.getElementById("agov").value.trim(),p=document.getElementById("aphone").value.trim();
- if(!n||!g){toast("اكتب اسم النشاط والولاية");return}
- custom.push({name:n,cat:c,gov:g,city:"",address:"",phone:p.replace(/\D/g,""),desc:"نشاط مضاف من طرف المستخدم.",icon:iconFor(c)});save();
- document.getElementById("aname").value="";document.getElementById("aphone").value="";render();toast("تمت إضافة النشاط على جهازك")
+let n=document.getElementById("aname").value.trim(),c=document.getElementById("acat").value,g=document.getElementById("agov").value.trim(),p=document.getElementById("aphone").value.trim();
+if(!n||!g){toast("اكتب اسم النشاط والولاية");return}
+custom.push({name:n,cat:c,gov:g,city:"",address:"",phone:p.replace(/\D/g,""),desc:"نشاط مضاف من طرف المستخدم.",icon:iconFor(c)});save();
+document.getElementById("aname").value="";document.getElementById("aphone").value="";render();toast("تمت إضافة النشاط على جهازك")
 }
 function go(id,el){document.querySelectorAll(".nav").forEach(x=>x.classList.remove("active"));el.classList.add("active");if(id==="home")window.scrollTo({top:0,behavior:"smooth"});else if(id==="cats")document.getElementById("categories").scrollIntoView({behavior:"smooth"});else if(id==="search")document.getElementById("search").scrollIntoView({behavior:"smooth"});else document.getElementById("add").scrollIntoView({behavior:"smooth"})}
 function toast(t){let e=document.getElementById("toast");e.textContent=t;e.classList.add("show");clearTimeout(window.tt);window.tt=setTimeout(()=>e.classList.remove("show"),2200)}
-
 renderCats();renderChips();render();loadData();
 </script>
 </body>
